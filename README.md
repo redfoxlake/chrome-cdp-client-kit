@@ -29,8 +29,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 **2. Drop the skill in place:**
 ```bash
 mkdir -p ~/.claude/skills/chrome-cdp
-cp skill/* ~/.claude/skills/chrome-cdp/
-chmod +x ~/.claude/skills/chrome-cdp/chrome_cdp.py
+cp skill/*.py skill/SKILL.md ~/.claude/skills/chrome-cdp/
+chmod +x ~/.claude/skills/chrome-cdp/*.py
 ```
 
 **3. Add the alias** to `~/.zshrc`, then open a new shell:

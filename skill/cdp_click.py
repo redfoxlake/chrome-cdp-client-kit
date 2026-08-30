@@ -38,6 +38,7 @@ Exits non-zero if the selector matches nothing.
 import argparse
 import json
 import os
+import re
 import sys
 import time
 
@@ -45,6 +46,23 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import chrome_cdp  # noqa: E402
 from websocket import create_connection  # noqa: E402
+
+
+def _join_negative_values(argv):
+    """`--sweep -4,-8,-12` looks like a flag to argparse, because the value
+    starts with '-'. Rewrite the space form into the '=' form, which argparse
+    accepts, so both spellings work. Same for --dx/--dy with negative numbers."""
+    out, i = [], 0
+    numeric = re.compile(r"^-\d+(\.\d+)?(,-?\d+(\.\d+)?)*$")
+    while i < len(argv):
+        a = argv[i]
+        if a in ("--sweep", "--dx", "--dy") and i + 1 < len(argv) and numeric.match(argv[i + 1]):
+            out.append(f"{a}={argv[i + 1]}")
+            i += 2
+            continue
+        out.append(a)
+        i += 1
+    return out
 
 
 def main():
@@ -60,7 +78,7 @@ def main():
                     help="wait after mouseMoved for hover-only controls to render (default 350)")
     ap.add_argument("--settle-ms", type=int, default=600,
                     help="wait after the click before checking for a change (default 600)")
-    args = ap.parse_args()
+    args = ap.parse_args(_join_negative_values(sys.argv[1:]))
 
     chrome_cdp.require_up()
     tab = chrome_cdp.pick_tab(args.tab)
